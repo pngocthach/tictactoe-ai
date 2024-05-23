@@ -16,10 +16,10 @@ func (t *TicTacToe) Evaluate() float64 {
 
 	for i := 0; i < len(vectors); i++ {
 		for j := 0; j < len(PATTERN["X five"]); j++ {
-			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X five"][j], 10)) * 1000000
+			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X five"][j], 10)) * 100000000
 		}
 		for j := 0; j < len(PATTERN["X open four"]); j++ {
-			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X open four"][j], 12)) * 100000
+			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X open four"][j], 12)) * 9000000
 		}
 		for j := 0; j < len(PATTERN["X close four"]); j++ {
 			fourX += VectorPatternMatchCount(vectors[i], PATTERN["X close four"][j], 12)
@@ -41,10 +41,10 @@ func (t *TicTacToe) Evaluate() float64 {
 		}
 
 		for j := 0; j < len(PATTERN["O five"]); j++ {
-			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O five"][j], 10)) * 1000000
+			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O five"][j], 10)) * 100000000
 		}
 		for j := 0; j < len(PATTERN["O open four"]); j++ {
-			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O open four"][j], 12)) * 100000
+			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O open four"][j], 12)) * 9000000
 		}
 		for j := 0; j < len(PATTERN["O close four"]); j++ {
 			fourO += VectorPatternMatchCount(vectors[i], PATTERN["O close four"][j], 12)
@@ -67,25 +67,25 @@ func (t *TicTacToe) Evaluate() float64 {
 	}
 
 	if fourX > 1 {
-		scoreX += 100000
+		scoreX += 10000
 	}
 	if fourO > 1 {
-		scoreO += 100000
+		scoreO += 10000
 	}
 	if threeX > 1 {
-		scoreX += 40000
+		scoreX += 4000
 	}
 	if threeO > 1 {
-		scoreO += 80000
+		scoreO += 8000
 	}
 	if fourX+threeX > 1 {
-		scoreX += 90000
+		scoreX += 9000
 	}
 	if fourO+threeO > 1 {
-		scoreO += 90000
+		scoreO += 9000
 	}
-	scoreX += float64(threeX)*100 + float64(fourX)*1000
-	scoreO += float64(threeO)*100 + float64(fourO)*1000
+	scoreX += float64(threeX)*500 + float64(fourX)*100000
+	scoreO += float64(threeO)*500 + float64(fourO)*100000
 	return scoreX - scoreO*0.8
 }
 
