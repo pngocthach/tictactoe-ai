@@ -158,53 +158,54 @@ func GetBinaryPattern(pattern []int) int {
 }
 
 func InitPattern() {
-	PATTERN = map[string][]int{
-		"X five":      {GetBinaryPattern([]int{x, x, x, x, x})},
-		"X open four": {GetBinaryPattern([]int{e, x, x, x, x, e})},
+	PATTERN = map[string][]Pattern{
+		"X five":      {{GetBinaryPattern([]int{x, x, x, x, x}), 10}},
+		"X open four": {{GetBinaryPattern([]int{e, x, x, x, x, e}), 12}},
 		"X close four": {
-			GetBinaryPattern([]int{o, x, x, x, x, e}),
-			GetBinaryPattern([]int{w, x, x, x, x, e}),
-			GetBinaryPattern([]int{e, x, x, x, x, o}),
-			GetBinaryPattern([]int{e, x, x, x, x, w}),
+			{GetBinaryPattern([]int{o, x, x, x, x, e}), 12},
+			{GetBinaryPattern([]int{w, x, x, x, x, e}), 12},
+			{GetBinaryPattern([]int{e, x, x, x, x, o}), 12},
+			{GetBinaryPattern([]int{e, x, x, x, x, w}), 12},
 		},
 		"X broken four": {
-			GetBinaryPattern([]int{x, e, x, x, x}),
-			GetBinaryPattern([]int{x, x, e, x, x}),
-			GetBinaryPattern([]int{x, x, x, e, x}),
+			{GetBinaryPattern([]int{x, e, x, x, x}), 10},
+			{GetBinaryPattern([]int{x, x, e, x, x}), 10},
+			{GetBinaryPattern([]int{x, x, x, e, x}), 10},
 		},
 		"X open three": {
-			GetBinaryPattern([]int{e, x, x, x, e}),
+			{GetBinaryPattern([]int{e, x, x, x, e}), 10},
 		},
 		"X broken three": {
-			GetBinaryPattern([]int{e, x, e, x, x, e}),
-			GetBinaryPattern([]int{e, x, x, e, x, e}),
+			{GetBinaryPattern([]int{e, x, e, x, x, e}), 12},
+			{GetBinaryPattern([]int{e, x, x, e, x, e}), 12},
 		},
-		"X open two":   {GetBinaryPattern([]int{e, x, x, e})},
-		"X broken two": {GetBinaryPattern([]int{e, x, e, x, e})},
+		"X open two":   {{GetBinaryPattern([]int{e, x, x, e}), 8}},
+		"X broken two": {{GetBinaryPattern([]int{e, x, e, x, e}), 10}},
 
-		"O five":      {GetBinaryPattern([]int{o, o, o, o, o})},
-		"O open four": {GetBinaryPattern([]int{e, o, o, o, o, e})},
+		"O five":      {{GetBinaryPattern([]int{o, o, o, o, o}), 10}},
+		"O open four": {{GetBinaryPattern([]int{e, o, o, o, o, e}), 12}},
 		"O close four": {
-			GetBinaryPattern([]int{x, o, o, o, o, e}),
-			GetBinaryPattern([]int{w, o, o, o, o, e}),
-			GetBinaryPattern([]int{e, o, o, o, o, x}),
-			GetBinaryPattern([]int{e, o, o, o, o, w}),
+			{GetBinaryPattern([]int{x, o, o, o, o, e}), 12},
+			{GetBinaryPattern([]int{w, o, o, o, o, e}), 12},
+			{GetBinaryPattern([]int{e, o, o, o, o, x}), 12},
+			{GetBinaryPattern([]int{e, o, o, o, o, w}), 12},
 		},
 		"O broken four": {
-			GetBinaryPattern([]int{o, e, o, o, o}),
-			GetBinaryPattern([]int{o, o, e, o, o}),
-			GetBinaryPattern([]int{o, o, o, e, o}),
+			{GetBinaryPattern([]int{o, e, o, o, o}), 10},
+			{GetBinaryPattern([]int{o, o, e, o, o}), 10},
+			{GetBinaryPattern([]int{o, o, o, e, o}), 10},
 		},
 		"O open three": {
-			GetBinaryPattern([]int{e, o, o, o, e}),
+			{GetBinaryPattern([]int{e, o, o, o, e}), 10},
 		},
 		"O broken three": {
-			GetBinaryPattern([]int{e, o, e, o, o, e}),
-			GetBinaryPattern([]int{e, o, o, e, o, e}),
+			{GetBinaryPattern([]int{e, o, e, o, o, e}), 12},
+			{GetBinaryPattern([]int{e, o, o, e, o, e}), 12},
 		},
-		"O open two":   {GetBinaryPattern([]int{e, o, o, e})},
-		"O broken two": {GetBinaryPattern([]int{e, o, e, o, e})},
+		"O open two":   {{GetBinaryPattern([]int{e, o, o, e}), 8}},
+		"O broken two": {{GetBinaryPattern([]int{e, o, e, o, e}), 10}},
 	}
+
 }
 
 func (t *TicTacToe) PrintNeighbors() {

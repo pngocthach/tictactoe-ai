@@ -29,7 +29,7 @@ var (
 	MOVE_UP_LEFT                        = Move{-1, -1}
 	MOVE_DOWN_RIGHT                     = Move{1, 1}
 	DIRECTION                           = [8]Move{MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, MOVE_UP_RIGHT, MOVE_DOWN_LEFT, MOVE_UP_LEFT, MOVE_DOWN_RIGHT}
-	PATTERN                             = map[string][]int{}
+	PATTERN                             = map[string][]Pattern{}
 	RIGHT                               = [...]Move{MOVE_UP, MOVE_UP_RIGHT, MOVE_RIGHT, MOVE_DOWN_RIGHT}
 	LEFT                                = [...]Move{MOVE_DOWN, MOVE_DOWN_LEFT, MOVE_LEFT, MOVE_UP_LEFT}
 )

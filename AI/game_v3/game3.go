@@ -129,41 +129,46 @@ func (t *TicTacToe) UpdateDist(move Move) {
 }
 
 func (t *TicTacToe) CheckWin() bool {
+	return t.CheckPatterns([]Pattern{{0b0101010101, 10}, {0b1010101010, 10}})
+}
+
+type Pattern struct {
+	Bitmask int
+	Length  int
+}
+
+func (t *TicTacToe) CheckPatterns(patterns []Pattern) bool {
 	for i := range t.BoardRow {
-		if VectorPatternMatchCount(t.BoardRow[i], 0b0101010101, 10) > 0 {
-			return true
-		}
-		if VectorPatternMatchCount(t.BoardRow[i], 0b1010101010, 10) > 0 {
-			return true
+		for j := range patterns {
+			if VectorPatternMatchCount(t.BoardRow[i], patterns[j].Bitmask, patterns[j].Length) > 0 {
+				return true
+			}
 		}
 	}
 
 	for i := range t.BoardCol {
-		if VectorPatternMatchCount(t.BoardCol[i], 0b0101010101, 10) > 0 {
-			return true
-		}
-		if VectorPatternMatchCount(t.BoardCol[i], 0b1010101010, 10) > 0 {
-			return true
+		for j := range patterns {
+			if VectorPatternMatchCount(t.BoardCol[i], patterns[j].Bitmask, patterns[j].Length) > 0 {
+				return true
+			}
 		}
 	}
 
 	diags := t.getAllDiag()
 	for i := range diags {
-		if VectorPatternMatchCount(diags[i], 0b0101010101, 10) > 0 {
-			return true
-		}
-		if VectorPatternMatchCount(diags[i], 0b1010101010, 10) > 0 {
-			return true
+		for j := range patterns {
+			if VectorPatternMatchCount(diags[i], patterns[j].Bitmask, patterns[j].Length) > 0 {
+				return true
+			}
 		}
 	}
 
 	antiDiags := t.getAllAntiDiag()
 	for i := range antiDiags {
-		if VectorPatternMatchCount(antiDiags[i], 0b0101010101, 10) > 0 {
-			return true
-		}
-		if VectorPatternMatchCount(antiDiags[i], 0b1010101010, 10) > 0 {
-			return true
+		for j := range patterns {
+			if VectorPatternMatchCount(antiDiags[i], patterns[j].Bitmask, patterns[j].Length) > 0 {
+				return true
+			}
 		}
 	}
 

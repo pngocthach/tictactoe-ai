@@ -23,8 +23,17 @@ func (t *TicTacToe) AlphaBeta(depth int, alpha float64, beta float64) float64 {
 	isMaximize := t.GetPlayer() == PLAYER_X
 	var bestScore float64
 	moves := t.GetNeighbor(DIST)
-	if len(moves) == 0 {
-		moves = []Move{{t.BoardSize / 2, t.BoardSize / 2}}
+
+	// for j := 0; j < len(PATTERN["X broken four"]); j++ {
+	// 	if t.CheckPatterns([]Pattern{})
+	// }
+	patternKey := []string{"X broken four", "O broken four", "X close four", "O close four"}
+
+	for _, key := range patternKey {
+		if t.CheckPatterns(PATTERN[key]) {
+			moves = moves[:1]
+			break
+		}
 	}
 
 	if isMaximize {
@@ -61,86 +70,6 @@ func (t *TicTacToe) AlphaBeta(depth int, alpha float64, beta float64) float64 {
 	}
 }
 
-// func (t TicTacToe) AlphaBetaParallel(depth int, alpha float64, beta float64, result chan float64) float64 {
-// 	// return t.Evaluate() after 10 seconds
-// 	if (time.Since(AlphaBetaStart) > MAX_TIME*time.Second && depth > 1) ||
-// 		depth == MAX_DEPTH ||
-// 		t.CheckWin() ||
-// 		t.MoveCount == t.BoardSize*t.BoardSize {
-
-// 		eval := t.Evaluate()
-// 		result <- eval
-// 		return eval
-// 	}
-
-// 	isMaximize := t.GetPlayer() == PLAYER_X
-// 	var bestScore float64
-// 	moves := t.GetNeighbor(DIST)
-// 	if len(moves) == 0 {
-// 		moves = []Move{{t.BoardSize / 2, t.BoardSize / 2}}
-// 	}
-
-// 	if isMaximize {
-// 		bestScore = math.Inf(-1)
-// 		for i := 0; i < int(PERCENTAGE_SEQUENTIAL*float64(len(moves))); i++ {
-// 			oldDist := clone.Clone(t.Dist).([][]int)
-// 			t.MakeMove(moves[i])
-// 			score := t.AlphaBeta(depth+1, alpha, beta)
-// 			t.UndoMove(moves[i])
-// 			t.Dist = oldDist
-// 			bestScore = max(bestScore, score)
-// 			alpha = max(alpha, bestScore)
-// 			if beta <= alpha {
-// 				break
-// 			}
-// 		}
-
-// 		for i := int(PERCENTAGE_SEQUENTIAL * float64(len(moves))); i < len(moves); i++ {
-// 			tCopy := t.deepClone()
-// 			go tCopy.AlphaBetaParallel(depth+1, alpha, beta, result)
-// 		}
-
-// 		for i := int(PERCENTAGE_SEQUENTIAL * float64(len(moves))); i < len(moves); i++ {
-// 			score := <-result
-// 			bestScore = max(bestScore, score)
-// 			alpha = max(alpha, bestScore)
-// 			if beta <= alpha {
-// 				break
-// 			}
-// 		}
-// 		return bestScore
-// 	} else {
-// 		bestScore = math.Inf(1)
-// 		for i := 0; i < int(PERCENTAGE_SEQUENTIAL*float64(len(moves))); i++ {
-// 			oldDist := clone.Clone(t.Dist).([][]int)
-// 			t.MakeMove(moves[i])
-// 			score := t.AlphaBeta(depth+1, alpha, beta)
-// 			t.UndoMove(moves[i])
-// 			t.Dist = oldDist
-// 			bestScore = min(bestScore, score)
-// 			beta = min(beta, bestScore)
-// 			if beta <= alpha {
-// 				break
-// 			}
-// 		}
-
-// 		for i := int(PERCENTAGE_SEQUENTIAL * float64(len(moves))); i < len(moves); i++ {
-// 			tCopy := t.deepClone()
-// 			go tCopy.AlphaBetaParallel(depth+1, alpha, beta, result)
-// 		}
-
-// 		for i := int(PERCENTAGE_SEQUENTIAL * float64(len(moves))); i < len(moves); i++ {
-// 			score := <-result
-// 			bestScore = min(bestScore, score)
-// 			beta = min(beta, bestScore)
-// 			if beta <= alpha {
-// 				break
-// 			}
-// 		}
-// 		return bestScore
-// 	}
-// }
-
 func (t *TicTacToe) AlphaBetaParallel(depth int, alpha float64, beta float64) float64 {
 	if (time.Since(AlphaBetaStart) > MAX_TIME*time.Second && depth > 1) ||
 		depth == MAX_DEPTH ||
@@ -156,6 +85,15 @@ func (t *TicTacToe) AlphaBetaParallel(depth int, alpha float64, beta float64) fl
 	moves := t.GetNeighbor(DIST)
 	if len(moves) == 0 {
 		moves = []Move{{t.BoardSize / 2, t.BoardSize / 2}}
+	}
+
+	patternKey := []string{"X broken four", "O broken four", "X close four", "O close four"}
+
+	for _, key := range patternKey {
+		if t.CheckPatterns(PATTERN[key]) {
+			moves = moves[:1]
+			break
+		}
 	}
 
 	if isMaximize {

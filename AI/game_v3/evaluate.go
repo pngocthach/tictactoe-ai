@@ -16,77 +16,77 @@ func (t *TicTacToe) Evaluate() float64 {
 
 	for i := 0; i < len(vectors); i++ {
 		for j := 0; j < len(PATTERN["X five"]); j++ {
-			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X five"][j], 10)) * 100000000
+			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X five"][j].Bitmask, 10)) * 100000000
 		}
 		for j := 0; j < len(PATTERN["X open four"]); j++ {
-			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X open four"][j], 12)) * 9000000
+			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X open four"][j].Bitmask, 12)) * 9000000
 		}
 		for j := 0; j < len(PATTERN["X close four"]); j++ {
-			fourX += VectorPatternMatchCount(vectors[i], PATTERN["X close four"][j], 12)
+			fourX += VectorPatternMatchCount(vectors[i], PATTERN["X close four"][j].Bitmask, 12)
 		}
 		for j := 0; j < len(PATTERN["X broken four"]); j++ {
-			fourX += VectorPatternMatchCount(vectors[i], PATTERN["X broken four"][j], 10)
+			fourX += VectorPatternMatchCount(vectors[i], PATTERN["X broken four"][j].Bitmask, 10)
 		}
 		for j := 0; j < len(PATTERN["X open three"]); j++ {
-			threeX += VectorPatternMatchCount(vectors[i], PATTERN["X open three"][j], 10)
+			threeX += VectorPatternMatchCount(vectors[i], PATTERN["X open three"][j].Bitmask, 10)
 		}
 		for j := 0; j < len(PATTERN["X broken three"]); j++ {
-			threeX += VectorPatternMatchCount(vectors[i], PATTERN["X broken three"][j], 12)
+			threeX += VectorPatternMatchCount(vectors[i], PATTERN["X broken three"][j].Bitmask, 12)
 		}
 		for j := 0; j < len(PATTERN["X open two"]); j++ {
-			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X open two"][j], 8)) * 10
+			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X open two"][j].Bitmask, 8)) * 10
 		}
 		for j := 0; j < len(PATTERN["X broken two"]); j++ {
-			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X broken two"][j], 10)) * 10
+			scoreX += float64(VectorPatternMatchCount(vectors[i], PATTERN["X broken two"][j].Bitmask, 10)) * 10
 		}
 
 		for j := 0; j < len(PATTERN["O five"]); j++ {
-			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O five"][j], 10)) * 100000000
+			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O five"][j].Bitmask, 10)) * 100000000
 		}
 		for j := 0; j < len(PATTERN["O open four"]); j++ {
-			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O open four"][j], 12)) * 9000000
+			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O open four"][j].Bitmask, 12)) * 9000000
 		}
 		for j := 0; j < len(PATTERN["O close four"]); j++ {
-			fourO += VectorPatternMatchCount(vectors[i], PATTERN["O close four"][j], 12)
+			fourO += VectorPatternMatchCount(vectors[i], PATTERN["O close four"][j].Bitmask, 12)
 		}
 		for j := 0; j < len(PATTERN["O broken four"]); j++ {
-			fourO += VectorPatternMatchCount(vectors[i], PATTERN["O broken four"][j], 10)
+			fourO += VectorPatternMatchCount(vectors[i], PATTERN["O broken four"][j].Bitmask, 10)
 		}
 		for j := 0; j < len(PATTERN["O open three"]); j++ {
-			threeO += VectorPatternMatchCount(vectors[i], PATTERN["O open three"][j], 10)
+			threeO += VectorPatternMatchCount(vectors[i], PATTERN["O open three"][j].Bitmask, 10)
 		}
 		for j := 0; j < len(PATTERN["O broken three"]); j++ {
-			threeO += VectorPatternMatchCount(vectors[i], PATTERN["O broken three"][j], 12)
+			threeO += VectorPatternMatchCount(vectors[i], PATTERN["O broken three"][j].Bitmask, 12)
 		}
 		for j := 0; j < len(PATTERN["O open two"]); j++ {
-			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O open two"][j], 8)) * 10
+			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O open two"][j].Bitmask, 8)) * 10
 		}
 		for j := 0; j < len(PATTERN["O broken two"]); j++ {
-			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O broken two"][j], 10)) * 10
+			scoreO += float64(VectorPatternMatchCount(vectors[i], PATTERN["O broken two"][j].Bitmask, 10)) * 10
 		}
 	}
 
-	if fourX > 1 {
-		scoreX += 10000
-	}
-	if fourO > 1 {
-		scoreO += 10000
-	}
-	if threeX > 1 {
-		scoreX += 4000
-	}
-	if threeO > 1 {
-		scoreO += 8000
-	}
-	if fourX+threeX > 1 {
-		scoreX += 9000
-	}
-	if fourO+threeO > 1 {
-		scoreO += 9000
-	}
-	scoreX += float64(threeX)*500 + float64(fourX)*100000
-	scoreO += float64(threeO)*500 + float64(fourO)*100000
-	return scoreX - scoreO*0.8
+	// if fourX > 1 {
+	// 	scoreX += 10000
+	// }
+	// if fourO > 1 {
+	// 	scoreO += 10000
+	// }
+	// if threeX > 1 {
+	// 	scoreX += 4000
+	// }
+	// if threeO > 1 {
+	// 	scoreO += 4000
+	// }
+	// if fourX+threeX > 1 {
+	// 	scoreX += 10000
+	// }
+	// if fourO+threeO > 1 {
+	// 	scoreO += 10000
+	// }
+	scoreX += float64(threeX)*500 + float64(fourX)*10000
+	scoreO += float64(threeO)*500 + float64(fourO)*10000
+	return scoreX - scoreO*1.2
 }
 
 func (t *TicTacToe) GetAllVectors() []int {
@@ -97,29 +97,6 @@ func (t *TicTacToe) GetAllVectors() []int {
 	res = append(res, t.getAllAntiDiag()...)
 	return res
 }
-
-// func VectorPatternMatchCount(vector int, pattern *[]int, player int) int {
-// 	// vector is bit of a row / col / diagonal
-// 	count := 0
-// 	for i := range len(*vector) - len(*pattern) + 1 {
-// 		var j int
-// 		for j = 0; j < len(*pattern); j++ {
-// 			if (*pattern)[j] == 1 && (*vector)[i+j] != player {
-// 				break
-// 			}
-// 			if (*pattern)[j] == -1 && ((*vector)[i+j] != -player || (*vector)[i+j] != WALL) {
-// 				break
-// 			}
-// 			if (*pattern)[j] == 0 && (*vector)[i+j] != 0 {
-// 				break
-// 			}
-// 		}
-// 		if j == len(*pattern) {
-// 			count++
-// 		}
-// 	}
-// 	return count
-// }
 
 // return bitmask of diagonal, length of bitmask
 func (t *TicTacToe) getDiag(i, j int) (int, int) {
@@ -184,10 +161,10 @@ func (t *TicTacToe) getAllAntiDiag() []int {
 	return res
 }
 
-type VectorPatternCacheKey struct {
-	vector  int
-	pattern int
-}
+// type VectorPatternCacheKey struct {
+// 	vector  int
+// 	pattern int
+// }
 
 // var vectorPatternCache = map[VectorPatternCacheKey]int{}
 
