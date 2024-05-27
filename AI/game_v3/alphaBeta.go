@@ -24,15 +24,25 @@ func (t *TicTacToe) AlphaBeta(depth int, alpha float64, beta float64) float64 {
 	var bestScore float64
 	moves := t.GetNeighbor(DIST)
 
-	// for j := 0; j < len(PATTERN["X broken four"]); j++ {
-	// 	if t.CheckPatterns([]Pattern{})
-	// }
-	patternKey := []string{"X broken four", "O broken four", "X close four", "O close four"}
+	isPrune := false
+	if !isPrune {
+		patternKey := []string{"X open four", "O open four"}
+		for _, key := range patternKey {
+			if t.CheckPatterns(PATTERN[key]) {
+				moves = moves[:5]
+				break
+			}
+		}
+	}
 
-	for _, key := range patternKey {
-		if t.CheckPatterns(PATTERN[key]) {
-			moves = moves[:1]
-			break
+	if !isPrune {
+		patternKey := []string{"X broken four", "O broken four", "X close four", "O close four"}
+
+		for _, key := range patternKey {
+			if t.CheckPatterns(PATTERN[key]) {
+				moves = moves[:1]
+				break
+			}
 		}
 	}
 
@@ -83,16 +93,31 @@ func (t *TicTacToe) AlphaBetaParallel(depth int, alpha float64, beta float64) fl
 	isMaximize := t.GetPlayer() == PLAYER_X
 	var bestScore float64
 	moves := t.GetNeighbor(DIST)
+
+	isPrune := false
 	if len(moves) == 0 {
 		moves = []Move{{t.BoardSize / 2, t.BoardSize / 2}}
+		isPrune = true
 	}
 
-	patternKey := []string{"X broken four", "O broken four", "X close four", "O close four"}
+	if !isPrune {
+		patternKey := []string{"X open four", "O open four"}
+		for _, key := range patternKey {
+			if t.CheckPatterns(PATTERN[key]) {
+				moves = moves[:5]
+				break
+			}
+		}
+	}
 
-	for _, key := range patternKey {
-		if t.CheckPatterns(PATTERN[key]) {
-			moves = moves[:1]
-			break
+	if !isPrune {
+		patternKey := []string{"X broken four", "O broken four", "X close four", "O close four"}
+
+		for _, key := range patternKey {
+			if t.CheckPatterns(PATTERN[key]) {
+				moves = moves[:1]
+				break
+			}
 		}
 	}
 

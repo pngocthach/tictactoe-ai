@@ -43,6 +43,12 @@ func NewTicTacToe(boardSize int) *TicTacToe {
 
 	InitPattern()
 
+	if AI_PLAYER == PLAYER_X {
+		EVAL_PARAM = 1.2
+	} else {
+		EVAL_PARAM = 0.01
+	}
+
 	t.Dist = dist
 	return &t
 }
@@ -183,6 +189,14 @@ func (t *TicTacToe) MakeMove(move Move) error {
 	t.UpdateDist(move)
 
 	t.MoveCount++
+	if AI_PLAYER == PLAYER_O {
+		if t.MoveCount == 25 {
+			EVAL_PARAM = 0.5
+		}
+		if t.MoveCount == 40 {
+			EVAL_PARAM = 0.8
+		}
+	}
 	return nil
 }
 

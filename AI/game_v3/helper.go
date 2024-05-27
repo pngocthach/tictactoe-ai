@@ -1,9 +1,12 @@
 package game3
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"math/bits"
+	"net/http"
 )
 
 func (t *TicTacToe) PrintDist() {
@@ -123,6 +126,7 @@ func (t *TicTacToe) PlayPvAI(AIplayer int) {
 		fmt.Println("Player", player)
 		fmt.Println("cache hit: ", cacheHit)
 		if player == AIplayer {
+			println("eval_param: ", EVAL_PARAM, " move_count: ", t.MoveCount)
 			move := t.GetBestMove()
 			if t.MoveCount == 0 {
 				move = Move{t.BoardSize / 2, t.BoardSize / 2}
@@ -179,6 +183,16 @@ func InitPattern() {
 			{GetBinaryPattern([]int{e, x, e, x, x, e}), 12},
 			{GetBinaryPattern([]int{e, x, x, e, x, e}), 12},
 		},
+		"X close three": {
+			{GetBinaryPattern([]int{o, x, x, x, e}), 10},
+			{GetBinaryPattern([]int{e, x, x, x, o}), 10},
+			{GetBinaryPattern([]int{w, x, x, x, e}), 10},
+			{GetBinaryPattern([]int{e, x, x, x, w}), 10},
+			{GetBinaryPattern([]int{o, x, e, x, x, e}), 12},
+			{GetBinaryPattern([]int{w, x, x, e, x, e}), 12},
+			{GetBinaryPattern([]int{e, x, e, x, x, o}), 12},
+			{GetBinaryPattern([]int{e, x, x, e, x, w}), 12},
+		},
 		"X open two":   {{GetBinaryPattern([]int{e, x, x, e}), 8}},
 		"X broken two": {{GetBinaryPattern([]int{e, x, e, x, e}), 10}},
 
@@ -198,6 +212,16 @@ func InitPattern() {
 		"O open three": {
 			{GetBinaryPattern([]int{e, o, o, o, e}), 10},
 		},
+		"O close three": {
+			{GetBinaryPattern([]int{x, o, o, o, e}), 10},
+			{GetBinaryPattern([]int{e, o, o, o, x}), 10},
+			{GetBinaryPattern([]int{w, o, o, o, e}), 10},
+			{GetBinaryPattern([]int{e, o, o, o, w}), 10},
+			{GetBinaryPattern([]int{x, o, e, o, o, e}), 12},
+			{GetBinaryPattern([]int{w, o, o, e, o, e}), 12},
+			{GetBinaryPattern([]int{e, o, e, o, o, x}), 12},
+			{GetBinaryPattern([]int{e, o, o, e, o, w}), 12},
+		},
 		"O broken three": {
 			{GetBinaryPattern([]int{e, o, e, o, o, e}), 12},
 			{GetBinaryPattern([]int{e, o, o, e, o, e}), 12},
@@ -211,4 +235,73 @@ func InitPattern() {
 func (t *TicTacToe) PrintNeighbors() {
 	moves := t.GetNeighbor(DIST)
 	fmt.Println("Neighbors:", len(moves), moves)
+}
+
+func HttpServer() {
+	game := &TicTacToe{}
+
+	type InitRequest struct {
+		BoardSize int
+		Player    string
+	}
+
+	type InitResponse struct {
+		Success   bool
+		FirstMove Move
+	}
+
+	http.HandleFunc("POST /init", func(w http.ResponseWriter, r *http.Request) {
+		d := json.NewDecoder(r.Body)
+		var req InitRequest
+		err := d.Decode(&req)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		log.Println(req)
+		if req.Player == "X" {
+			AI_PLAYER = PLAYER_X
+		} else {
+			AI_PLAYER = PLAYER_O
+		}
+		game = NewTicTacToe(req.BoardSize)
+		if AI_PLAYER == PLAYER_X {
+			firstMove := Move{Row: game.BoardSize / 2, Col: game.BoardSize / 2}
+			game.MakeMove(firstMove)
+			json.NewEncoder(w).Encode(InitResponse{Success: true, FirstMove: firstMove})
+		} else {
+			json.NewEncoder(w).Encode(InitResponse{Success: true, FirstMove: Move{-1, -1}})
+		}
+	})
+
+	http.HandleFunc("POST /move", func(w http.ResponseWriter, r *http.Request) {
+		d := json.NewDecoder(r.Body)
+		var move Move
+		err := d.Decode(&move)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err = game.MakeMove(move)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		nextMove := game.GetBestMove()
+		err = game.MakeMove(nextMove)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		game.PrintBoard()
+
+		json.NewEncoder(w).Encode(struct {
+			Move     Move
+			GameOver bool
+		}{nextMove, game.CheckWin()})
+	})
+
+	log.Println("Server started at :8080")
+	http.ListenAndServe(":8080", nil)
 }
