@@ -7,6 +7,8 @@ import (
 	"math"
 	"math/bits"
 	"net/http"
+
+	"github.com/gorilla/handlers"
 )
 
 func (t *TicTacToe) PrintDist() {
@@ -250,7 +252,9 @@ func HttpServer() {
 		FirstMove Move
 	}
 
-	http.HandleFunc("POST /init", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("POST /init", func(w http.ResponseWriter, r *http.Request) {
 		d := json.NewDecoder(r.Body)
 		var req InitRequest
 		err := d.Decode(&req)
@@ -264,6 +268,8 @@ func HttpServer() {
 		} else {
 			AI_PLAYER = PLAYER_O
 		}
+
+		w.Header().Set("Content-Type", "application/json")
 		game = NewTicTacToe(req.BoardSize)
 		if AI_PLAYER == PLAYER_X {
 			firstMove := Move{Row: game.BoardSize / 2, Col: game.BoardSize / 2}
@@ -274,7 +280,8 @@ func HttpServer() {
 		}
 	})
 
-	http.HandleFunc("POST /move", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /move", func(w http.ResponseWriter, r *http.Request) {
+		// log request
 		d := json.NewDecoder(r.Body)
 		var move Move
 		err := d.Decode(&move)
@@ -282,6 +289,7 @@ func HttpServer() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		log.Println(r.Method, r.URL.Path, move)
 		err = game.MakeMove(move)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -296,6 +304,7 @@ func HttpServer() {
 		}
 		game.PrintBoard()
 
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(struct {
 			Move     Move
 			GameOver bool
@@ -303,5 +312,11 @@ func HttpServer() {
 	})
 
 	log.Println("Server started at :8080")
-	http.ListenAndServe(":8080", nil)
+
+	// http.ListenAndServe(":8080", handler)
+	http.ListenAndServe(":8080", handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"POST"}),
+		handlers.AllowedHeaders([]string{"Access-Control-Allow-Origin", "Content-Type"}),
+	)(mux))
 }

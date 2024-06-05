@@ -1,0 +1,19 @@
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+.board .row {
+  display: flex;
+}
+
+.board button {
+  background-color: white;
+  aspect-ratio: 1;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

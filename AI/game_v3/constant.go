@@ -18,9 +18,9 @@ var (
 	EVAL_PARAM                    = 1.0
 	DIST                          = 1
 	WIN_SIZE                      = 5
-	MAX_DEPTH                     = 3
+	MAX_DEPTH                     = 2
 	MAX_DIST                      = 1
-	MAX_TIME        time.Duration = 60
+	MAX_TIME        time.Duration = 5
 	MOVE_UP                       = Move{-1, 0}
 	MOVE_DOWN                     = Move{1, 0}
 	MOVE_LEFT                     = Move{0, -1}
