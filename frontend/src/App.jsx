@@ -25,6 +25,7 @@ function App() {
       const updatedBoard = [...board];
       updatedBoard[row][col] = playerTurn;
       setBoard(updatedBoard);
+      setIsThinking(true);
 
       fetch(`${URL}/move`, {
         method: 'POST',
