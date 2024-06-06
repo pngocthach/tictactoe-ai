@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 
-const URL = 'http://127.0.0.1:8080'
+const URL = import.meta.env.VITE_API_URL
 
 function App() {
   const [boardSize, setBoardSize] = useState(15);
