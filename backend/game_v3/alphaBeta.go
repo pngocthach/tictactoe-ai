@@ -238,8 +238,8 @@ func (t *TicTacToe) GetBestMove() Move {
 		for i := 0; i < len(moves); i++ {
 			oldDist := clone.Clone(t.Dist).([][]int)
 			t.MakeMove(moves[i])
-			// score := t.AlphaBeta(0, math.Inf(-1), math.Inf(1))
-			score := t.AlphaBetaParallel(0, math.Inf(-1), math.Inf(1))
+			score := t.AlphaBeta(0, math.Inf(-1), math.Inf(1))
+			// score := t.AlphaBetaParallel(0, math.Inf(-1), math.Inf(1))
 			t.UndoMove(moves[i])
 			t.Dist = oldDist
 			if score > bestScore {
@@ -256,8 +256,8 @@ func (t *TicTacToe) GetBestMove() Move {
 		for i := 0; i < len(moves); i++ {
 			oldDist := clone.Clone(t.Dist).([][]int)
 			t.MakeMove(moves[i])
-			// score := t.AlphaBeta(0, math.Inf(-1), math.Inf(1))
-			score := t.AlphaBetaParallel(0, math.Inf(-1), math.Inf(1))
+			score := t.AlphaBeta(0, math.Inf(-1), math.Inf(1))
+			// score := t.AlphaBetaParallel(0, math.Inf(-1), math.Inf(1))
 			t.UndoMove(moves[i])
 			t.Dist = oldDist
 			if score < bestScore {

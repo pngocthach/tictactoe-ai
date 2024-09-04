@@ -2,6 +2,7 @@ services:
   backend:
     build:
       context: ./backend
+    container_name: tictactoe-backend  
     ports:
       - "8080:8080"
     environment:
@@ -10,10 +11,12 @@ services:
   frontend:
     build:
       context: ./frontend
+    container_name: tictactoe-frontend
     ports:
       - "3000:80"
 
   proxy:
     build: ./proxy
+    container_name: tictactoe-proxy
     ports: 
      - "8000:80"
