@@ -18,10 +18,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # - name: Copy files to VPS
-      #   run: |
-      #     scp -r . ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/project/tictactoe
-
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -31,13 +27,6 @@ jobs:
           source: "."
           target: "/home/project/tictactoe"
 
-      # - name: Deploy on VPS
-      #   run: |
-      #     ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-      #       cd /home/project/tictactoe
-      #       docker-compose down
-      #       docker-compose pull
-      #       docker-compose up -d --build
       - name: Deploy on VPS
         uses: appleboy/ssh-action@master
         with:

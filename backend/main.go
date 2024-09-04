@@ -5,8 +5,8 @@ import (
 )
 
 func main() {
-	t3.HttpServer()
-	// game := t3.NewTicTacToe(15)
-	// t3.MAX_DEPTH = 2
-	// game.PlayPvAI(t3.PLAYER_O)
+	// t3.HttpServer()
+	game := t3.NewTicTacToe(15)
+	t3.MAX_DEPTH = 2
+	game.PlayPvAI(t3.PLAYER_O)
 }

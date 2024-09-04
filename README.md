@@ -1,12 +1,20 @@
 # Tic Tac Toe AI
 
-This is a simple implementation of the Tic Tac Toe game with an AI opponent. The AI is designed to play against a human player and make optimal moves.
+This is an implementation of the nxn Tic Tac Toe game with an AI opponent. The AI uses the alpha-beta pruning search algorithm to make optimal moves against a human player. The goal of the game is to get five of your symbols in a row to win.
 
 ## Features
 
 - Play against the AI opponent
 - Interactive command-line interface
 - Web interface
+
+## Demo
+
+- [Link demo](http://146.190.105.246:8000/)
+
+<div align="center">
+<img src="assets/demo.gif">
+</div>
 
 ## Installation
 
@@ -34,7 +42,7 @@ npm install
 To start the game, run the following command:
 
 ```shell
-AI/build/ai_linux_amd64
+backend/build/ai_linux_amd64
 
 cd frontend
 npm start

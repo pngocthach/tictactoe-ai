@@ -40,13 +40,13 @@ func (t *TicTacToe) AlphaBeta(depth int, alpha float64, beta float64) float64 {
 
 		for _, key := range patternKey {
 			if t.CheckPatterns(PATTERN[key]) {
-				moves = moves[:1]
+				moves = moves[:2]
 				break
 			}
 		}
 	}
 
-	moves = moves[:min(15, len(moves))]
+	// moves = moves[:min(15, len(moves))]
 
 	if isMaximize {
 		bestScore = math.Inf(-1)
