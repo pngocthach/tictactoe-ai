@@ -20,7 +20,7 @@ var (
 	WIN_SIZE                      = 5
 	MAX_DEPTH                     = 2
 	MAX_DIST                      = 1
-	MAX_TIME        time.Duration = 5
+	MAX_TIME        time.Duration = 2
 	MOVE_UP                       = Move{-1, 0}
 	MOVE_DOWN                     = Move{1, 0}
 	MOVE_LEFT                     = Move{0, -1}
@@ -34,8 +34,3 @@ var (
 	RIGHT                         = [...]Move{MOVE_UP, MOVE_UP_RIGHT, MOVE_RIGHT, MOVE_DOWN_RIGHT}
 	LEFT                          = [...]Move{MOVE_DOWN, MOVE_DOWN_LEFT, MOVE_LEFT, MOVE_UP_LEFT}
 )
-
-// type Pattern struct {
-// 	Player  int
-// 	Pattern string
-// }

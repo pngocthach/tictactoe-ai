@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 
-const URL = import.meta.env.VITE_API_URL
+// const URL = import.meta.env.VITE_API_URL
 
 function App() {
   const [boardSize, setBoardSize] = useState(15);
@@ -27,7 +27,7 @@ function App() {
       setBoard(updatedBoard);
       setIsThinking(true);
 
-      fetch(`${URL}/move`, {
+      fetch(`/api/move`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ function App() {
     setIsOver(false);
     setPlayerTurn("X");
     setIsThinking(false);
-    fetch(`${URL}/init`, {
+    fetch(`/api/init`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

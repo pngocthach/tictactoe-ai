@@ -2,6 +2,7 @@ package game3
 
 import (
 	"math/bits"
+	"sync"
 )
 
 func (t *TicTacToe) Evaluate() float64 {
@@ -166,10 +167,10 @@ func (t *TicTacToe) getAllAntiDiag() []int {
 	return res
 }
 
-// type VectorPatternCacheKey struct {
-// 	vector  int
-// 	pattern int
-// }
+type VectorPatternCacheKey struct {
+	vector  int
+	pattern int
+}
 
 // var vectorPatternCache = map[VectorPatternCacheKey]int{}
 
@@ -177,7 +178,7 @@ func (t *TicTacToe) getAllAntiDiag() []int {
 
 var cacheHit = 0
 
-// var vectorPatternCache = sync.Map{}
+var vectorPatternCache = sync.Map{}
 
 func VectorPatternMatchCount(vector int, pattern int, patternLength int) int {
 	// check if in cache
@@ -187,11 +188,11 @@ func VectorPatternMatchCount(vector int, pattern int, patternLength int) int {
 	// 	return val
 	// }
 
-	// val, ok := vectorPatternCache.Load(VectorPatternCacheKey{vector: vector, pattern: pattern})
-	// if ok {
-	// 	cacheHit++
-	// 	return val.(int)
-	// }
+	val, ok := vectorPatternCache.Load(VectorPatternCacheKey{vector: vector, pattern: pattern})
+	if ok {
+		cacheHit++
+		return val.(int)
+	}
 
 	// 1. get vector length
 	vectorLength := bits.Len64(uint64(vector))
@@ -212,12 +213,8 @@ func VectorPatternMatchCount(vector int, pattern int, patternLength int) int {
 	}
 
 	// vectorPatternCache[VectorPatternCacheKey{vector: vector, pattern: pattern}] = count
-	// go func() {
-	// 	vectorPatternCache.Store(VectorPatternCacheKey{vector: vector, pattern: pattern}, count)
-	// }()
+
+	vectorPatternCache.Store(VectorPatternCacheKey{vector: vector, pattern: pattern}, count)
+
 	return count
 }
-
-// func addToBitmask(bitmask int, value int, pos int) int {
-// 	return bitmask | (value << pos)
-// }

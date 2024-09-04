@@ -46,6 +46,8 @@ func (t *TicTacToe) AlphaBeta(depth int, alpha float64, beta float64) float64 {
 		}
 	}
 
+	moves = moves[:min(15, len(moves))]
+
 	if isMaximize {
 		bestScore = math.Inf(-1)
 		for i := 0; i < len(moves); i++ {
@@ -104,7 +106,7 @@ func (t *TicTacToe) AlphaBetaParallel(depth int, alpha float64, beta float64) fl
 		patternKey := []string{"X open four", "O open four"}
 		for _, key := range patternKey {
 			if t.CheckPatterns(PATTERN[key]) {
-				moves = moves[:5]
+				moves = moves[:1]
 				break
 			}
 		}
@@ -282,6 +284,12 @@ func (t *TicTacToe) GetNeighbor(dist int) []Move {
 
 	// sort moves by score
 	sort.SliceStable(neighbors, func(i, j int) bool {
+		// t1 := t.deepClone()
+		// t1.MakeMove(neighbors[i])
+		// t2 := t.deepClone()
+		// t2.MakeMove(neighbors[j])
+		// // fmt.Println("Eval: ", neighbors[i], a, " - ", neighbors[j], b)
+		// return int(t1.Evaluate()) > int(t2.Evaluate())
 		a := t.EvaluateMove(&neighbors[i])
 		b := t.EvaluateMove(&neighbors[j])
 		// fmt.Println("Eval: ", neighbors[i], a, " - ", neighbors[j], b)
