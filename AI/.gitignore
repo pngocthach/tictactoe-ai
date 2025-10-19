@@ -1,0 +1,8 @@
+.vscode/
+err.txt
+log.txt
+doc/
+game_v1/
+game_v2/
+game_v3/
+build/ai_server
