@@ -137,6 +137,20 @@
             cursor: not-allowed;
         }
 
+        /* Disabled state when it's not player's turn */
+        .cell.occupied:not(.x):not(.o) {
+            opacity: 0.5;
+            background: #f0f0f0;
+        }
+
+        /* Alpine-controlled disabled state */
+        .cell.cell-disabled {
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+            background: #f5f5f5;
+        }
+
         .cell.x {
             color: #667eea;
         }

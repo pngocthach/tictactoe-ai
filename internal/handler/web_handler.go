@@ -175,19 +175,41 @@ func (h *WebHandler) renderGameBoard(w http.ResponseWriter, response *dto.Create
 		aiMoveMsg = fmt.Sprintf("AI played: Row %d, Col %d", response.AIMove.Row, response.AIMove.Col)
 	}
 
+	// If AI moved, it's now player's turn. Otherwise, it's AI's turn (player 1 plays first)
+	isPlayerTurn := true
+	if response.Player == 2 && response.AIMove == nil {
+		// Player is O (second), and AI hasn't moved yet, so it's AI's turn
+		isPlayerTurn = false
+	}
+
 	fmt.Fprintf(w, `
-	<div class="game-board active" x-data="{ gameOver: false, pendingMove: null }">
+	<div class="game-board active" 
+		 x-data="{ gameOver: false, isMyTurn: %t, isProcessing: false }"
+		 @htmx:after-swap.window="
+			console.log('HTMX swap detected, updating state...');
+			isMyTurn = true; 
+			isProcessing = false;
+			console.log('State after swap:', $data);
+		 "
+		 @game-over.window="
+			console.log('Game over event received');
+			gameOver = true;
+			isMyTurn = false;
+		 ">
 		<div class="game-info" id="game-info">
 			<h3>You are: %s</h3>
+			<div class="status" x-show="!isMyTurn && !gameOver" style="color: #764ba2;">🤖 AI is thinking...</div>
+			<div class="status" x-show="isMyTurn && !gameOver" style="color: #28a745;">✅ Your turn!</div>
 			%s
 		</div>
 		<div id="board-container">
 			%s
 		</div>
+		<div id="alpine-state-update"></div>
 		<div id="winner-display"></div>
 		<button class="new-game-btn" onclick="location.reload()">New Game</button>
 	</div>
-	`, playerName,
+	`, isPlayerTurn, playerName,
 		func() string {
 			if aiMoveMsg != "" {
 				return fmt.Sprintf(`<div class="ai-move">%s</div>`, aiMoveMsg)
@@ -198,14 +220,26 @@ func (h *WebHandler) renderGameBoard(w http.ResponseWriter, response *dto.Create
 }
 
 func (h *WebHandler) renderBoardGrid(w http.ResponseWriter, gameID string, board [][]int, player int, aiMoveMsg string) {
+	playerName := "X"
+	if player == 2 {
+		playerName = "O"
+	}
+
+	// After AI move, it's player's turn again
 	fmt.Fprintf(w, `
 	<div id="board-container" hx-swap-oob="true">
 		%s
 	</div>
 	<div class="game-info" id="game-info" hx-swap-oob="true">
+		<h3>You are: %s</h3>
+		<div class="status" style="color: #28a745;">✅ Your turn!</div>
 		%s
 	</div>
+	<div id="alpine-state-update" hx-swap-oob="true">
+		<!-- State update handled by @htmx:after-swap event on game-board -->
+	</div>
 	`, h.getBoardHTML(gameID, board, player, false),
+		playerName,
 		func() string {
 			if aiMoveMsg != "" {
 				return fmt.Sprintf(`<div class="ai-move">%s</div>`, aiMoveMsg)
@@ -215,12 +249,18 @@ func (h *WebHandler) renderBoardGrid(w http.ResponseWriter, gameID string, board
 }
 
 func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID string, board [][]int, player int, statusMsg, aiMoveMsg string, gameOver bool) {
+	playerName := "X"
+	if player == 2 {
+		playerName = "O"
+	}
+
 	// Return winner banner directly in HTML
 	fmt.Fprintf(w, `
 	<div id="board-container" hx-swap-oob="true">
 		%s
 	</div>
-	<div class="game-info" hx-swap-oob="true">
+	<div class="game-info" id="game-info" hx-swap-oob="true">
+		<h3>You are: %s</h3>
 		%s
 	</div>
 	<div id="winner-display" hx-swap-oob="true">
@@ -230,7 +270,14 @@ func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID str
 			<button class="new-game-btn" onclick="location.reload()">New Game</button>
 		</div>
 	</div>
+	<div id="alpine-state-update" hx-swap-oob="true">
+		<script>
+			// Mark game as over - dispatch event to trigger Alpine handler
+			document.dispatchEvent(new CustomEvent('game-over'));
+		</script>
+	</div>
 	`, h.getBoardHTML(gameID, board, player, true),
+		playerName,
 		func() string {
 			if aiMoveMsg != "" {
 				return fmt.Sprintf(`<div class="ai-move">%s</div>`, aiMoveMsg)
@@ -247,7 +294,9 @@ func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGa
 		cellSize = 60
 	}
 
-	html := fmt.Sprintf(`<div class="board-grid" style="grid-template-columns: repeat(%d, %dpx); width: fit-content; margin: 0 auto;">`, size, cellSize)
+	html := fmt.Sprintf(`<div class="board-grid" 
+		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
+		style="grid-template-columns: repeat(%d, %dpx); width: fit-content; margin: 0 auto;">`, size, cellSize)
 
 	playerSymbol := "X"
 	if player == 2 {
@@ -276,25 +325,46 @@ func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGa
 			}
 
 			// Row and col are 1-indexed for the API
-			// Alpine.js: Show player's symbol immediately on click (optimistic UI)
-			// Use hx-swap-oob to preserve Alpine context
-			disabled := ""
-			if occupied != "" {
-				disabled = "pointer-events: none;"
-			}
+			// Simple solution: disable all cells when not player's turn
+			baseStyle := fmt.Sprintf("font-size: %dpx;", cellSize/2)
 
-			html += fmt.Sprintf(`
-				<div class="cell %s %s" 
+			if occupied != "" {
+				// Already occupied - always disabled
+				html += fmt.Sprintf(`
+				<div class="cell %s occupied" 
+					 style="%s pointer-events: none;">
+					%s
+				</div>
+			`, cellClass, baseStyle, cellContent)
+			} else if !isGameOver {
+				// Empty cell - use Alpine to control enable/disable via class
+				// Determine which class to add (x or o) based on player symbol
+				pendingClass := "x"
+				if player == 2 {
+					pendingClass = "o"
+				}
+
+				html += fmt.Sprintf(`
+				<div class="cell %s" 
 					 hx-post="/web/move" 
 					 hx-vals='{"game_id": "%s", "row": %d, "col": %d}'
 					 hx-target="#board-container"
 					 hx-swap="outerHTML"
-					 hx-indicator=".thinking"
-					 @click="if('%s' === '') { $el.innerHTML = '%s'; $el.classList.add('pending', '%s'); $el.style.pointerEvents = 'none'; }"
-					 style="font-size: %dpx; %s">
+					 :class="{ 'cell-disabled': !isMyTurn || isProcessing }"
+					 @click="if(isMyTurn && !isProcessing) { isMyTurn = false; isProcessing = true; $el.innerHTML = '%s'; $el.classList.add('pending', '%s'); }"
+					 style="%s">
 					%s
 				</div>
-			`, cellClass, occupied, gameID, i+1, j+1, cellContent, playerSymbol, cellClass, cellSize/2, disabled, cellContent)
+			`, cellClass, gameID, i+1, j+1, playerSymbol, pendingClass, baseStyle, cellContent)
+			} else {
+				// Game over - disabled
+				html += fmt.Sprintf(`
+				<div class="cell %s occupied" 
+					 style="%s pointer-events: none;">
+					%s
+				</div>
+			`, cellClass, baseStyle, cellContent)
+			}
 		}
 	}
 
