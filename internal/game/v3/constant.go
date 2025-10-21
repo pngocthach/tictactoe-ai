@@ -38,7 +38,7 @@ func SetDifficulty(difficulty string) {
 	switch difficulty {
 	case "very-easy":
 		MAX_DEPTH = 2
-		MAX_TIME = 300 * time.Millisecond
+		MAX_TIME = 100 * time.Millisecond
 	case "easy":
 		MAX_DEPTH = 2
 		MAX_TIME = 2 * time.Second

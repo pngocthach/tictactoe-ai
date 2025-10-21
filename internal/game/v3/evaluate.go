@@ -219,9 +219,7 @@ func VectorPatternMatchCount(vector int, pattern int, patternLength int) int {
 	i := 0
 	for i <= vectorLength-patternLength {
 		vector >>= 2
-		// fmt.Printf("vector: %b len: %v\n", vector, bits.Len64(uint64(vector)))
 		compareVector := vector & ((1 << patternLength) - 1)
-		// fmt.Printf("compareVector: %b\n", compareVector)
 		if compareVector == pattern {
 			count++
 			break

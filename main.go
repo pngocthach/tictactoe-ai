@@ -37,17 +37,8 @@ func main() {
 
 	// Start server
 	port := "8080"
-	fmt.Printf("Server is starting on port %s...\n", port)
-	fmt.Printf("Endpoints:\n")
-	fmt.Printf("  API:\n")
-	fmt.Printf("    POST /api/games - Create a new game\n")
-	fmt.Printf("    POST /api/games/move - Make a move\n")
-	fmt.Printf("  Web:\n")
-	fmt.Printf("    GET  / - Web interface\n")
-	fmt.Printf("    POST /web/create-game - Create game (HTML)\n")
-	fmt.Printf("    POST /web/move - Make move (HTML)\n")
-	fmt.Printf("  GET  /health - Health check\n")
-	fmt.Printf("\nOpen http://localhost:%s in your browser!\n", port)
+	fmt.Printf("Server starting on port %s...\n", port)
+	fmt.Printf("Open http://localhost:%s in your browser!\n", port)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)

@@ -38,8 +38,6 @@ func NewWebHandler(service *service.GameService, repo *repository.GameRepository
 		}
 	}
 
-	fmt.Printf("Templates loaded successfully from: %s\n", tmplPath)
-
 	return &WebHandler{
 		service:   service,
 		repo:      repo,
@@ -195,13 +193,10 @@ func (h *WebHandler) renderGameBoard(w http.ResponseWriter, response *dto.Create
 	<div class="game-board active" 
 		 x-data="{ gameOver: false, isMyTurn: %t, isProcessing: false }"
 		 @htmx:after-swap.window="
-			console.log('HTMX swap detected, updating state...');
 			isMyTurn = true; 
 			isProcessing = false;
-			console.log('State after swap:', $data);
 		 "
 		 @game-over.window="
-			console.log('Game over event received');
 			gameOver = true;
 			isMyTurn = false;
 		 ">
@@ -323,7 +318,6 @@ func (h *WebHandler) getBoardHTMLWithWinningAndLastMove(gameID string, board [][
 
 	// Fit board to viewport height
 	html := fmt.Sprintf(`<div class="board-grid" 
-		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
 		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
 
 	for i := 0; i < size; i++ {
@@ -381,7 +375,6 @@ func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, playe
 
 	// Fit board to viewport height
 	html := fmt.Sprintf(`<div class="board-grid" 
-		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
 		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
 
 	for i := 0; i < size; i++ {
@@ -428,7 +421,6 @@ func (h *WebHandler) getBoardHTMLWithLastMove(gameID string, board [][]int, play
 
 	// Fit board to viewport height
 	html := fmt.Sprintf(`<div class="board-grid" 
-		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
 		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
 
 	playerSymbol := "X"
@@ -516,7 +508,6 @@ func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGa
 
 	// Fit board to viewport height
 	html := fmt.Sprintf(`<div class="board-grid" 
-		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
 		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
 
 	playerSymbol := "X"
