@@ -160,7 +160,7 @@ func (h *WebHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 			winnerMsg = "🤝 It's a Draw!"
 		}
 
-		h.renderGameBoardWithStatus(w, response.GameID, response.Board, player, winnerMsg, aiMoveMsg, true)
+		h.renderGameBoardWithStatus(w, response.GameID, response.Board, player, winnerMsg, aiMoveMsg, true, response.WinningLine)
 		return
 	}
 
@@ -254,27 +254,31 @@ func (h *WebHandler) renderBoardGrid(w http.ResponseWriter, gameID string, board
 		}())
 }
 
-func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID string, board [][]int, player int, statusMsg, aiMoveMsg string, gameOver bool) {
+func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID string, board [][]int, player int, statusMsg, aiMoveMsg string, gameOver bool, winningLine []dto.MoveInfo) {
 	playerName := "X"
 	if player == 2 {
 		playerName = "O"
 	}
 
-	// Return winner banner directly in HTML
+	// Create a map of winning positions for easy lookup
+	winningPos := make(map[string]bool)
+	for _, pos := range winningLine {
+		key := fmt.Sprintf("%d-%d", pos.Row, pos.Col)
+		winningPos[key] = true
+	}
+
+	// Return board with highlighted winning line
 	fmt.Fprintf(w, `
 	<div id="board-container" hx-swap-oob="true">
 		%s
 	</div>
 	<div class="game-info" id="game-info" hx-swap-oob="true">
 		<h3>You are: %s</h3>
+		<div class="status" style="color: #28a745; font-size: 1.5em;">%s</div>
 		%s
 	</div>
 	<div id="winner-display" hx-swap-oob="true">
-		<div class="overlay"></div>
-		<div class="winner-banner">
-			<h2>%s</h2>
-			<button class="new-game-btn" onclick="location.reload()">New Game</button>
-		</div>
+		<!-- No banner, just highlight winning line -->
 	</div>
 	<div id="alpine-state-update" hx-swap-oob="true">
 		<script>
@@ -282,15 +286,67 @@ func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID str
 			document.dispatchEvent(new CustomEvent('game-over'));
 		</script>
 	</div>
-	`, h.getBoardHTML(gameID, board, player, true),
+	`, h.getBoardHTMLWithWinning(gameID, board, player, true, winningPos),
 		playerName,
+		statusMsg,
 		func() string {
 			if aiMoveMsg != "" {
 				return fmt.Sprintf(`<div class="ai-move">%s</div>`, aiMoveMsg)
 			}
 			return ""
-		}(),
-		statusMsg)
+		}())
+}
+
+func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, player int, isGameOver bool, winningPos map[string]bool) string {
+	size := len(board)
+	cellSize := 400 / size // Max 400px board width
+	if cellSize > 60 {
+		cellSize = 60
+	}
+
+	html := fmt.Sprintf(`<div class="board-grid" 
+		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
+		style="grid-template-columns: repeat(%d, %dpx); width: fit-content; margin: 0 auto;">`, size, cellSize)
+
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			value := board[i][j]
+			cellClass := ""
+			cellContent := ""
+			occupied := ""
+
+			if value == 1 {
+				cellClass = "x"
+				cellContent = "X"
+				occupied = "occupied"
+			} else if value == 2 {
+				cellClass = "o"
+				cellContent = "O"
+				occupied = "occupied"
+			}
+
+			// Check if this cell is part of winning line
+			key := fmt.Sprintf("%d-%d", i+1, j+1)
+			isWinning := winningPos[key]
+			winningClass := ""
+			if isWinning {
+				winningClass = "winning-cell"
+			}
+
+			// Row and col are 1-indexed for the API
+			baseStyle := fmt.Sprintf("font-size: %dpx;", cellSize/2)
+
+			html += fmt.Sprintf(`
+				<div class="cell %s %s %s" 
+					 style="%s pointer-events: none;">
+					%s
+				</div>
+			`, cellClass, occupied, winningClass, baseStyle, cellContent)
+		}
+	}
+
+	html += "</div>"
+	return html
 }
 
 func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGameOver bool) string {

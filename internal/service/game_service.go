@@ -144,10 +144,19 @@ func (s *GameService) MakeMove(req *dto.MakeMoveRequest) (*dto.MakeMoveResponse,
 	gameOver := game.Instance.CheckWin()
 	var winner *int
 	var aiMove *dto.MoveInfo
+	var winningLine []dto.MoveInfo
 
 	if gameOver {
 		w := game.Player
 		winner = &w
+		// Get winning line
+		line := game.Instance.GetWinningLine()
+		if line != nil {
+			winningLine = make([]dto.MoveInfo, len(line))
+			for i, move := range line {
+				winningLine[i] = dto.MoveInfo{Row: move.Row, Col: move.Col}
+			}
+		}
 	} else if game.Instance.MoveCount == game.BoardSize*game.BoardSize {
 		// Draw
 		gameOver = true
@@ -168,6 +177,14 @@ func (s *GameService) MakeMove(req *dto.MakeMoveRequest) (*dto.MakeMoveResponse,
 			gameOver = true
 			aiPlayer := game.Instance.GetOpponent(game.Player)
 			winner = &aiPlayer
+			// Get winning line
+			line := game.Instance.GetWinningLine()
+			if line != nil {
+				winningLine = make([]dto.MoveInfo, len(line))
+				for i, move := range line {
+					winningLine[i] = dto.MoveInfo{Row: move.Row, Col: move.Col}
+				}
+			}
 		} else if game.Instance.MoveCount == game.BoardSize*game.BoardSize {
 			// Draw
 			gameOver = true
@@ -184,14 +201,15 @@ func (s *GameService) MakeMove(req *dto.MakeMoveRequest) (*dto.MakeMoveResponse,
 	board := s.getBoardState(game.Instance)
 
 	return &dto.MakeMoveResponse{
-		GameID:   req.GameID,
-		Row:      req.Row,
-		Col:      req.Col,
-		AIMove:   aiMove,
-		Board:    board,
-		GameOver: gameOver,
-		Winner:   winner,
-		Message:  "Move processed successfully",
+		GameID:      req.GameID,
+		Row:         req.Row,
+		Col:         req.Col,
+		AIMove:      aiMove,
+		Board:       board,
+		GameOver:    gameOver,
+		Winner:      winner,
+		WinningLine: winningLine,
+		Message:     "Move processed successfully",
 	}, nil
 }
 

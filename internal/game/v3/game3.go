@@ -170,6 +170,113 @@ func (t *TicTacToe) CheckWin() bool {
 	return false
 }
 
+// GetWinningLine returns the positions of the 5 winning pieces
+func (t *TicTacToe) GetWinningLine() []Move {
+	// Check rows
+	for row := 1; row <= t.BoardSize; row++ {
+		for col := 1; col <= t.BoardSize-WIN_SIZE+1; col++ {
+			player := t.GetValue(row, col)
+			if player == EMPTY || player == WALL {
+				continue
+			}
+
+			// Check horizontal
+			match := true
+			for k := 1; k < WIN_SIZE; k++ {
+				if t.GetValue(row, col+k) != player {
+					match = false
+					break
+				}
+			}
+			if match {
+				line := make([]Move, WIN_SIZE)
+				for k := 0; k < WIN_SIZE; k++ {
+					line[k] = Move{Row: row, Col: col + k}
+				}
+				return line
+			}
+		}
+	}
+
+	// Check columns
+	for row := 1; row <= t.BoardSize-WIN_SIZE+1; row++ {
+		for col := 1; col <= t.BoardSize; col++ {
+			player := t.GetValue(row, col)
+			if player == EMPTY || player == WALL {
+				continue
+			}
+
+			// Check vertical
+			match := true
+			for k := 1; k < WIN_SIZE; k++ {
+				if t.GetValue(row+k, col) != player {
+					match = false
+					break
+				}
+			}
+			if match {
+				line := make([]Move, WIN_SIZE)
+				for k := 0; k < WIN_SIZE; k++ {
+					line[k] = Move{Row: row + k, Col: col}
+				}
+				return line
+			}
+		}
+	}
+
+	// Check diagonals (top-left to bottom-right)
+	for row := 1; row <= t.BoardSize-WIN_SIZE+1; row++ {
+		for col := 1; col <= t.BoardSize-WIN_SIZE+1; col++ {
+			player := t.GetValue(row, col)
+			if player == EMPTY || player == WALL {
+				continue
+			}
+
+			match := true
+			for k := 1; k < WIN_SIZE; k++ {
+				if t.GetValue(row+k, col+k) != player {
+					match = false
+					break
+				}
+			}
+			if match {
+				line := make([]Move, WIN_SIZE)
+				for k := 0; k < WIN_SIZE; k++ {
+					line[k] = Move{Row: row + k, Col: col + k}
+				}
+				return line
+			}
+		}
+	}
+
+	// Check anti-diagonals (top-right to bottom-left)
+	for row := 1; row <= t.BoardSize-WIN_SIZE+1; row++ {
+		for col := WIN_SIZE; col <= t.BoardSize; col++ {
+			player := t.GetValue(row, col)
+			if player == EMPTY || player == WALL {
+				continue
+			}
+
+			match := true
+			for k := 1; k < WIN_SIZE; k++ {
+				if t.GetValue(row+k, col-k) != player {
+					match = false
+					break
+				}
+			}
+			if match {
+				line := make([]Move, WIN_SIZE)
+				for k := 0; k < WIN_SIZE; k++ {
+					line[k] = Move{Row: row + k, Col: col - k}
+				}
+				return line
+			}
+		}
+	}
+
+	return nil
+}
+
 func (t *TicTacToe) MakeMove(move Move) error {
 	err := t.SetMove(move.Row, move.Col)
 	if err != nil {

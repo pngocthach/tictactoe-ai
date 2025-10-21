@@ -12,14 +12,15 @@ type CreateGameResponse struct {
 
 // MakeMoveResponse represents the response after making a move
 type MakeMoveResponse struct {
-	GameID   string    `json:"game_id"`
-	Row      int       `json:"row"`
-	Col      int       `json:"col"`
-	AIMove   *MoveInfo `json:"ai_move,omitempty"`
-	Board    [][]int   `json:"board"`
-	GameOver bool      `json:"game_over"`
-	Winner   *int      `json:"winner,omitempty"`
-	Message  string    `json:"message"`
+	GameID      string     `json:"game_id"`
+	Row         int        `json:"row"`
+	Col         int        `json:"col"`
+	AIMove      *MoveInfo  `json:"ai_move,omitempty"`
+	Board       [][]int    `json:"board"`
+	GameOver    bool       `json:"game_over"`
+	Winner      *int       `json:"winner,omitempty"`
+	WinningLine []MoveInfo `json:"winning_line,omitempty"`
+	Message     string     `json:"message"`
 }
 
 // MoveInfo represents information about a move
