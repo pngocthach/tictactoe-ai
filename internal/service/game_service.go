@@ -51,8 +51,8 @@ func (s *GameService) CreateGame(req *dto.CreateGameRequest) (*dto.CreateGameRes
 	if difficulty == "" {
 		difficulty = "easy" // default
 	}
-	if difficulty != "easy" && difficulty != "hard" {
-		return nil, errors.New("invalid difficulty, must be 'easy' or 'hard'")
+	if difficulty != "very-easy" && difficulty != "easy" && difficulty != "hard" {
+		return nil, errors.New("invalid difficulty, must be 'very-easy', 'easy' or 'hard'")
 	}
 
 	// Generate UUID

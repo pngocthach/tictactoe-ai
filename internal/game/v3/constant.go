@@ -36,12 +36,18 @@ var (
 // SetDifficulty sets the AI difficulty level
 func SetDifficulty(difficulty string) {
 	switch difficulty {
+	case "very-easy":
+		MAX_DEPTH = 2
+		MAX_TIME = 300 * time.Millisecond
 	case "easy":
 		MAX_DEPTH = 2
+		MAX_TIME = 2 * time.Second
 	case "hard":
 		MAX_DEPTH = 4
+		MAX_TIME = 20 * time.Second
 	default:
 		MAX_DEPTH = 2 // default to easy
+		MAX_TIME = 2 * time.Second
 	}
 }
 
