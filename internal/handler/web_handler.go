@@ -165,7 +165,7 @@ func (h *WebHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return updated board
-	h.renderBoardGrid(w, gameID, response.Board, player, aiMoveMsg)
+	h.renderBoardGridWithLastMove(w, gameID, response.Board, player, aiMoveMsg, response.AIMove)
 }
 
 // Helper functions to render HTML
@@ -222,7 +222,7 @@ func (h *WebHandler) renderGameBoard(w http.ResponseWriter, response *dto.Create
 			}
 			return ""
 		}(),
-		h.getBoardHTML(response.GameID, response.Board, response.Player, false))
+		h.getBoardHTMLWithLastMove(response.GameID, response.Board, response.Player, false, response.AIMove))
 }
 
 func (h *WebHandler) renderBoardGrid(w http.ResponseWriter, gameID string, board [][]int, player int, aiMoveMsg string) {
@@ -244,6 +244,28 @@ func (h *WebHandler) renderBoardGrid(w http.ResponseWriter, gameID string, board
 		<!-- State update handled by @htmx:after-swap event on game-board -->
 	</div>
 	`, h.getBoardHTML(gameID, board, player, false),
+		playerName)
+}
+
+func (h *WebHandler) renderBoardGridWithLastMove(w http.ResponseWriter, gameID string, board [][]int, player int, aiMoveMsg string, lastMove *dto.MoveInfo) {
+	playerName := "X"
+	if player == 2 {
+		playerName = "O"
+	}
+
+	// After AI move, it's player's turn again
+	fmt.Fprintf(w, `
+	<div id="board-container" hx-swap-oob="true">
+		%s
+	</div>
+	<div class="game-info" id="game-info" hx-swap-oob="true">
+		<h3>You are: %s</h3>
+		<div class="status" style="color: #28a745;">✅ Your turn!</div>
+	</div>
+	<div id="alpine-state-update" hx-swap-oob="true">
+		<!-- State update handled by @htmx:after-swap event on game-board -->
+	</div>
+	`, h.getBoardHTMLWithLastMove(gameID, board, player, false, lastMove),
 		playerName)
 }
 
@@ -278,9 +300,67 @@ func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID str
 			document.dispatchEvent(new CustomEvent('game-over'));
 		</script>
 	</div>
-	`, h.getBoardHTMLWithWinning(gameID, board, player, true, winningPos),
+	`, h.getBoardHTMLWithWinningAndLastMove(gameID, board, player, true, winningPos, nil),
 		playerName,
 		statusMsg)
+}
+
+func (h *WebHandler) getBoardHTMLWithWinningAndLastMove(gameID string, board [][]int, player int, isGameOver bool, winningPos map[string]bool, lastMove *dto.MoveInfo) string {
+	size := len(board)
+
+	// Fit board to viewport height
+	html := fmt.Sprintf(`<div class="board-grid" 
+		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
+		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
+
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			value := board[i][j]
+			cellClass := ""
+			cellContent := ""
+			occupied := ""
+
+			if value == 1 {
+				cellClass = "x"
+				cellContent = "X"
+				occupied = "occupied"
+			} else if value == 2 {
+				cellClass = "o"
+				cellContent = "O"
+				occupied = "occupied"
+			}
+
+			// Check if this cell is part of winning line
+			key := fmt.Sprintf("%d-%d", i+1, j+1)
+			isWinning := winningPos[key]
+			winningClass := ""
+			if isWinning {
+				winningClass = "winning-cell"
+			}
+
+			// Check if this is the last move
+			isLastMove := false
+			if lastMove != nil && lastMove.Row == i+1 && lastMove.Col == j+1 {
+				isLastMove = true
+			}
+
+			// Row and col are 1-indexed for the API
+			lastMoveClass := ""
+			if isLastMove {
+				lastMoveClass = "last-move"
+			}
+
+			html += fmt.Sprintf(`
+				<div class="cell %s %s %s %s" 
+					 style="pointer-events: none;">
+					%s
+				</div>
+			`, cellClass, occupied, winningClass, lastMoveClass, cellContent)
+		}
+	}
+
+	html += "</div>"
+	return html
 }
 
 func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, player int, isGameOver bool, winningPos map[string]bool) string {
@@ -323,6 +403,94 @@ func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, playe
 					%s
 				</div>
 			`, cellClass, occupied, winningClass, cellContent)
+		}
+	}
+
+	html += "</div>"
+	return html
+}
+
+func (h *WebHandler) getBoardHTMLWithLastMove(gameID string, board [][]int, player int, isGameOver bool, lastMove *dto.MoveInfo) string {
+	size := len(board)
+
+	// Fit board to viewport height
+	html := fmt.Sprintf(`<div class="board-grid" 
+		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
+		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
+
+	playerSymbol := "X"
+	if player == 2 {
+		playerSymbol = "O"
+	}
+
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			value := board[i][j]
+			cellClass := ""
+			cellContent := ""
+			occupied := ""
+
+			if value == 1 {
+				cellClass = "x"
+				cellContent = "X"
+				occupied = "occupied"
+			} else if value == 2 {
+				cellClass = "o"
+				cellContent = "O"
+				occupied = "occupied"
+			}
+
+			if isGameOver {
+				occupied = "occupied"
+			}
+
+			// Check if this is the last move
+			isLastMove := false
+			if lastMove != nil && lastMove.Row == i+1 && lastMove.Col == j+1 {
+				isLastMove = true
+			}
+
+			// Row and col are 1-indexed for the API
+			if occupied != "" {
+				// Already occupied - always disabled
+				lastMoveClass := ""
+				if isLastMove {
+					lastMoveClass = "last-move"
+				}
+				html += fmt.Sprintf(`
+				<div class="cell %s occupied %s" 
+					 style="pointer-events: none;">
+					%s
+				</div>
+			`, cellClass, lastMoveClass, cellContent)
+			} else if !isGameOver {
+				// Empty cell - use Alpine to control enable/disable via class
+				// Determine which class to add (x or o) based on player symbol
+				pendingClass := "x"
+				if player == 2 {
+					pendingClass = "o"
+				}
+
+				html += fmt.Sprintf(`
+				<div class="cell %s" 
+					 hx-post="/web/move" 
+					 hx-vals='{"game_id": "%s", "row": %d, "col": %d}'
+					 hx-target="#board-container"
+					 hx-swap="outerHTML"
+					 :class="{ 'cell-disabled': !isMyTurn || isProcessing }"
+					 @click="if(isMyTurn && !isProcessing) { isMyTurn = false; isProcessing = true; $el.innerHTML = '%s'; $el.classList.add('pending', '%s'); }">
+					%s
+				</div>
+			`, cellClass, gameID, i+1, j+1, playerSymbol, pendingClass, cellContent)
+			} else {
+				// Game over - disabled
+				html += fmt.Sprintf(`
+				<div class="cell %s occupied" 
+					 style="pointer-events: none;">
+					%s
+				</div>
+			`, cellClass, cellContent)
+			}
 		}
 	}
 

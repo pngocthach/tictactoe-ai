@@ -5,7 +5,7 @@ type CreateGameResponse struct {
 	GameID    string    `json:"game_id"`
 	BoardSize int       `json:"board_size"`
 	Player    int       `json:"player"`
-	AIMove    *MoveInfo `json:"ai_move,omitempty"` // First AI move if player goes second
+	AIMove    *MoveInfo `json:"ai_move,omitempty"` // AI move (for highlighting)
 	Board     [][]int   `json:"board"`
 	Message   string    `json:"message"`
 }
@@ -15,7 +15,7 @@ type MakeMoveResponse struct {
 	GameID      string     `json:"game_id"`
 	Row         int        `json:"row"`
 	Col         int        `json:"col"`
-	AIMove      *MoveInfo  `json:"ai_move,omitempty"`
+	AIMove      *MoveInfo  `json:"ai_move,omitempty"` // AI move (for highlighting)
 	Board       [][]int    `json:"board"`
 	GameOver    bool       `json:"game_over"`
 	Winner      *int       `json:"winner,omitempty"`

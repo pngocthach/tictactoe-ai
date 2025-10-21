@@ -169,6 +169,29 @@
             position: relative;
         }
 
+        /* Last move highlight */
+        .cell.last-move {
+            background: #f0f8ff !important;
+            border-color: #b0c4de !important;
+            border-width: 2px !important;
+            animation: lastMovePulse 1.5s ease-in-out;
+            transform: scale(1.02);
+            box-shadow: 0 0 8px rgba(176, 196, 222, 0.3);
+            z-index: 5;
+            position: relative;
+        }
+
+        @keyframes lastMovePulse {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(176, 196, 222, 0.3);
+                transform: scale(1.02);
+            }
+            50% { 
+                box-shadow: 0 0 12px rgba(176, 196, 222, 0.5);
+                transform: scale(1.03);
+            }
+        }
+
         @keyframes winPulse {
             0%, 100% { 
                 box-shadow: 0 0 20px rgba(245, 87, 108, 0.6);
