@@ -181,9 +181,12 @@ func (h *WebHandler) renderGameBoard(w http.ResponseWriter, response *dto.Create
 	// 	aiMoveMsg = fmt.Sprintf("AI played: Row %d, Col %d", response.AIMove.Row, response.AIMove.Col)
 	// }
 
-	// If AI moved, it's now player's turn. Otherwise, it's AI's turn (player 1 plays first)
+	// Determine whose turn it is
 	isPlayerTurn := true
-	if response.Player == 2 && response.AIMove == nil {
+	if response.AIMove != nil {
+		// AI just moved, so it's now player's turn
+		isPlayerTurn = true
+	} else if response.Player == 2 {
 		// Player is O (second), and AI hasn't moved yet, so it's AI's turn
 		isPlayerTurn = false
 	}
@@ -253,20 +256,30 @@ func (h *WebHandler) renderBoardGridWithLastMove(w http.ResponseWriter, gameID s
 		playerName = "O"
 	}
 
-	// After AI move, it's player's turn again
+	// Determine whose turn it is based on whether AI just moved
+	isPlayerTurn := lastMove != nil // If AI just moved (lastMove exists), it's player's turn
+
 	fmt.Fprintf(w, `
 	<div id="board-container" hx-swap-oob="true">
 		%s
 	</div>
 	<div class="game-info" id="game-info" hx-swap-oob="true">
 		<h3>You are: %s</h3>
-		<div class="status" style="color: #28a745;">✅ Your turn!</div>
+		<div class="status" x-show="!isMyTurn && !gameOver" style="color: #764ba2;">🤖 AI is thinking...</div>
+		<div class="status" x-show="isMyTurn && !gameOver" style="color: #28a745;">✅ Your turn!</div>
 	</div>
 	<div id="alpine-state-update" hx-swap-oob="true">
-		<!-- State update handled by @htmx:after-swap event on game-board -->
+		<script>
+			// Update Alpine state
+			const gameBoard = document.querySelector('.game-board');
+			if (gameBoard && gameBoard._x_dataStack) {
+				gameBoard._x_dataStack[0].isMyTurn = %t;
+				gameBoard._x_dataStack[0].isProcessing = false;
+			}
+		</script>
 	</div>
 	`, h.getBoardHTMLWithLastMove(gameID, board, player, false, lastMove),
-		playerName)
+		playerName, isPlayerTurn)
 }
 
 func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID string, board [][]int, player int, statusMsg, aiMoveMsg string, gameOver bool, winningLine []dto.MoveInfo) {
