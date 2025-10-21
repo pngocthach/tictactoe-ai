@@ -146,9 +146,6 @@
         /* Alpine-controlled disabled state */
         .cell.cell-disabled {
             pointer-events: none !important;
-            cursor: not-allowed !important;
-            opacity: 0.6;
-            background: #f5f5f5;
         }
 
         .cell.x {
@@ -209,13 +206,7 @@
 
         /* Optimistic UI - pending move */
         .cell.pending {
-            opacity: 0.7;
-            animation: fadeIn 0.2s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 0.7; transform: scale(1); }
+            /* No visual effect, just disable */
         }
 
         .loading {
@@ -246,22 +237,6 @@
             50% { opacity: 0.3; }
         }
 
-        /* Optimistic UI - Show X immediately on click */
-        .cell.pending {
-            background: #e8e8ff;
-            border-color: #667eea;
-        }
-
-        .cell.pending::after {
-            content: '?';
-            color: #ccc;
-            animation: fade 0.5s ease-in-out;
-        }
-
-        @keyframes fade {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
         .winner-banner {
             position: fixed;
