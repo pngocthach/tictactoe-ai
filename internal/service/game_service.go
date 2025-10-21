@@ -46,14 +46,23 @@ func (s *GameService) CreateGame(req *dto.CreateGameRequest) (*dto.CreateGameRes
 		return nil, errors.New("invalid player value")
 	}
 
+	// Validate and set difficulty
+	difficulty := req.Difficulty
+	if difficulty == "" {
+		difficulty = "easy" // default
+	}
+	if difficulty != "easy" && difficulty != "hard" {
+		return nil, errors.New("invalid difficulty, must be 'easy' or 'hard'")
+	}
+
 	// Generate UUID
 	uuid, err := generateUUID()
 	if err != nil {
 		return nil, errors.New("failed to generate game ID")
 	}
 
-	// Initialize game configurations
-	v3.MAX_DEPTH = 4
+	// Initialize game configurations based on difficulty
+	v3.SetDifficulty(difficulty)
 	v3.MAX_TIME = 2
 	v3.MAX_DIST = 1
 	v3.DIST = 1
@@ -62,12 +71,13 @@ func (s *GameService) CreateGame(req *dto.CreateGameRequest) (*dto.CreateGameRes
 	gameInstance := v3.NewTicTacToe(req.BoardSize)
 
 	game := &entity.Game{
-		ID:        uuid,
-		Instance:  gameInstance,
-		BoardSize: req.BoardSize,
-		Player:    req.Player,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:         uuid,
+		Instance:   gameInstance,
+		BoardSize:  req.BoardSize,
+		Player:     req.Player,
+		Difficulty: difficulty,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	// If player goes second (PLAYER_O), AI makes first move
@@ -109,6 +119,9 @@ func (s *GameService) MakeMove(req *dto.MakeMoveRequest) (*dto.MakeMoveResponse,
 	if err != nil {
 		return nil, err
 	}
+
+	// Set difficulty for this game
+	v3.SetDifficulty(game.Difficulty)
 
 	// Validate move coordinates
 	if req.Row < 1 || req.Row > game.BoardSize || req.Col < 1 || req.Col > game.BoardSize {

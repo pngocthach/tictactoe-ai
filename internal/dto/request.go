@@ -2,8 +2,9 @@ package dto
 
 // CreateGameRequest represents the request to create a new game
 type CreateGameRequest struct {
-	BoardSize int `json:"board_size"`
-	Player    int `json:"player"` // PLAYER_X (1) or PLAYER_O (2) - who is the human player
+	BoardSize  int    `json:"board_size"`
+	Player     int    `json:"player"`     // PLAYER_X (1) or PLAYER_O (2) - who is the human player
+	Difficulty string `json:"difficulty"` // "easy" or "hard"
 }
 
 // MakeMoveRequest represents the request to make a move

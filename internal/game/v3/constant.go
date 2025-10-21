@@ -16,7 +16,7 @@ const (
 var (
 	DIST                          = 1
 	WIN_SIZE                      = 5
-	MAX_DEPTH                     = 7
+	MAX_DEPTH                     = 2 // Default: easy mode
 	MAX_DIST                      = 1
 	MAX_TIME        time.Duration = 20
 	MOVE_UP                       = Move{-1, 0}
@@ -32,6 +32,18 @@ var (
 	RIGHT                         = [...]Move{MOVE_UP, MOVE_UP_RIGHT, MOVE_RIGHT, MOVE_DOWN_RIGHT}
 	LEFT                          = [...]Move{MOVE_DOWN, MOVE_DOWN_LEFT, MOVE_LEFT, MOVE_UP_LEFT}
 )
+
+// SetDifficulty sets the AI difficulty level
+func SetDifficulty(difficulty string) {
+	switch difficulty {
+	case "easy":
+		MAX_DEPTH = 2
+	case "hard":
+		MAX_DEPTH = 4
+	default:
+		MAX_DEPTH = 2 // default to easy
+	}
+}
 
 // type Pattern struct {
 // 	Player  int

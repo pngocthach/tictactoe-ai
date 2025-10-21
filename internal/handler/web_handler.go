@@ -87,10 +87,16 @@ func (h *WebHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	difficulty := r.FormValue("difficulty")
+	if difficulty == "" {
+		difficulty = "easy" // default
+	}
+
 	// Create game
 	req := &dto.CreateGameRequest{
-		BoardSize: boardSize,
-		Player:    player,
+		BoardSize:  boardSize,
+		Player:     player,
+		Difficulty: difficulty,
 	}
 
 	response, err := h.service.CreateGame(req)

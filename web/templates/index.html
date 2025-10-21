@@ -286,8 +286,16 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label for="difficulty">AI Difficulty:</label>
+                    <select id="difficulty" name="difficulty">
+                        <option value="easy" selected>Easy (AI thinks faster)</option>
+                        <option value="hard">Hard (AI thinks slower)</option>
+                    </select>
+                </div>
+
                 <button hx-post="/web/create-game" 
-                        hx-include="[name='board_size'],[name='player']"
+                        hx-include="[name='board_size'],[name='player'],[name='difficulty']"
                         hx-target="#game-container"
                         hx-swap="innerHTML">
                     Start Game
