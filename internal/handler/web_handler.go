@@ -136,9 +136,9 @@ func (h *WebHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare AI move message
 	aiMoveMsg := ""
-	if response.AIMove != nil {
-		aiMoveMsg = fmt.Sprintf("AI played: Row %d, Col %d", response.AIMove.Row, response.AIMove.Col)
-	}
+	// if response.AIMove != nil {
+	// 	aiMoveMsg = fmt.Sprintf("AI played: Row %d, Col %d", response.AIMove.Row, response.AIMove.Col)
+	// }
 
 	// Get player from repository
 	game, err := h.repo.FindByID(response.GameID)
@@ -177,9 +177,9 @@ func (h *WebHandler) renderGameBoard(w http.ResponseWriter, response *dto.Create
 	}
 
 	aiMoveMsg := ""
-	if response.AIMove != nil {
-		aiMoveMsg = fmt.Sprintf("AI played: Row %d, Col %d", response.AIMove.Row, response.AIMove.Col)
-	}
+	// if response.AIMove != nil {
+	// 	aiMoveMsg = fmt.Sprintf("AI played: Row %d, Col %d", response.AIMove.Row, response.AIMove.Col)
+	// }
 
 	// If AI moved, it's now player's turn. Otherwise, it's AI's turn (player 1 plays first)
 	isPlayerTurn := true
@@ -239,19 +239,12 @@ func (h *WebHandler) renderBoardGrid(w http.ResponseWriter, gameID string, board
 	<div class="game-info" id="game-info" hx-swap-oob="true">
 		<h3>You are: %s</h3>
 		<div class="status" style="color: #28a745;">✅ Your turn!</div>
-		%s
 	</div>
 	<div id="alpine-state-update" hx-swap-oob="true">
 		<!-- State update handled by @htmx:after-swap event on game-board -->
 	</div>
 	`, h.getBoardHTML(gameID, board, player, false),
-		playerName,
-		func() string {
-			if aiMoveMsg != "" {
-				return fmt.Sprintf(`<div class="ai-move">%s</div>`, aiMoveMsg)
-			}
-			return ""
-		}())
+		playerName)
 }
 
 func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID string, board [][]int, player int, statusMsg, aiMoveMsg string, gameOver bool, winningLine []dto.MoveInfo) {
@@ -275,7 +268,6 @@ func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID str
 	<div class="game-info" id="game-info" hx-swap-oob="true">
 		<h3>You are: %s</h3>
 		<div class="status" style="color: #28a745; font-size: 1.5em;">%s</div>
-		%s
 	</div>
 	<div id="winner-display" hx-swap-oob="true">
 		<!-- No banner, just highlight winning line -->
@@ -288,25 +280,16 @@ func (h *WebHandler) renderGameBoardWithStatus(w http.ResponseWriter, gameID str
 	</div>
 	`, h.getBoardHTMLWithWinning(gameID, board, player, true, winningPos),
 		playerName,
-		statusMsg,
-		func() string {
-			if aiMoveMsg != "" {
-				return fmt.Sprintf(`<div class="ai-move">%s</div>`, aiMoveMsg)
-			}
-			return ""
-		}())
+		statusMsg)
 }
 
 func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, player int, isGameOver bool, winningPos map[string]bool) string {
 	size := len(board)
-	cellSize := 400 / size // Max 400px board width
-	if cellSize > 60 {
-		cellSize = 60
-	}
 
+	// Fit board to viewport height
 	html := fmt.Sprintf(`<div class="board-grid" 
 		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
-		style="grid-template-columns: repeat(%d, %dpx); width: fit-content; margin: 0 auto;">`, size, cellSize)
+		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
 
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
@@ -334,14 +317,12 @@ func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, playe
 			}
 
 			// Row and col are 1-indexed for the API
-			baseStyle := fmt.Sprintf("font-size: %dpx;", cellSize/2)
-
 			html += fmt.Sprintf(`
 				<div class="cell %s %s %s" 
-					 style="%s pointer-events: none;">
+					 style="pointer-events: none;">
 					%s
 				</div>
-			`, cellClass, occupied, winningClass, baseStyle, cellContent)
+			`, cellClass, occupied, winningClass, cellContent)
 		}
 	}
 
@@ -351,14 +332,11 @@ func (h *WebHandler) getBoardHTMLWithWinning(gameID string, board [][]int, playe
 
 func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGameOver bool) string {
 	size := len(board)
-	cellSize := 400 / size // Max 400px board width
-	if cellSize > 60 {
-		cellSize = 60
-	}
 
+	// Fit board to viewport height
 	html := fmt.Sprintf(`<div class="board-grid" 
 		x-init="console.log('Board grid init, isMyTurn:', isMyTurn, 'isProcessing:', isProcessing)"
-		style="grid-template-columns: repeat(%d, %dpx); width: fit-content; margin: 0 auto;">`, size, cellSize)
+		style="grid-template-columns: repeat(%d, minmax(0, 1fr)); max-width: min(85vw, 85vh); width: 100%%; margin: 0 auto;">`, size)
 
 	playerSymbol := "X"
 	if player == 2 {
@@ -388,16 +366,15 @@ func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGa
 
 			// Row and col are 1-indexed for the API
 			// Simple solution: disable all cells when not player's turn
-			baseStyle := fmt.Sprintf("font-size: %dpx;", cellSize/2)
 
 			if occupied != "" {
 				// Already occupied - always disabled
 				html += fmt.Sprintf(`
 				<div class="cell %s occupied" 
-					 style="%s pointer-events: none;">
+					 style="pointer-events: none;">
 					%s
 				</div>
-			`, cellClass, baseStyle, cellContent)
+			`, cellClass, cellContent)
 			} else if !isGameOver {
 				// Empty cell - use Alpine to control enable/disable via class
 				// Determine which class to add (x or o) based on player symbol
@@ -413,19 +390,18 @@ func (h *WebHandler) getBoardHTML(gameID string, board [][]int, player int, isGa
 					 hx-target="#board-container"
 					 hx-swap="outerHTML"
 					 :class="{ 'cell-disabled': !isMyTurn || isProcessing }"
-					 @click="if(isMyTurn && !isProcessing) { isMyTurn = false; isProcessing = true; $el.innerHTML = '%s'; $el.classList.add('pending', '%s'); }"
-					 style="%s">
+					 @click="if(isMyTurn && !isProcessing) { isMyTurn = false; isProcessing = true; $el.innerHTML = '%s'; $el.classList.add('pending', '%s'); }">
 					%s
 				</div>
-			`, cellClass, gameID, i+1, j+1, playerSymbol, pendingClass, baseStyle, cellContent)
+			`, cellClass, gameID, i+1, j+1, playerSymbol, pendingClass, cellContent)
 			} else {
 				// Game over - disabled
 				html += fmt.Sprintf(`
 				<div class="cell %s occupied" 
-					 style="%s pointer-events: none;">
+					 style="pointer-events: none;">
 					%s
 				</div>
-			`, cellClass, baseStyle, cellContent)
+			`, cellClass, cellContent)
 			}
 		}
 	}
