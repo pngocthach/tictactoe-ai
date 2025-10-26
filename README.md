@@ -1,7 +1,9 @@
 # Tic-Tac-Toe AI Server
 
 A Tic-Tac-Toe game server with AI opponent using alpha-beta pruning algorithm.
-[Live demo](https://tictactoe-ai-kac2.onrender.com)
+
+## Live demo
+[Live demo](https://tictactoe.thachpn.me)
 ## Features
 
 - RESTful API for game management
@@ -150,7 +152,6 @@ Features:
 - Visual feedback for moves
 - Win/draw detection with animations
 
-See [WEB_INTERFACE.md](WEB_INTERFACE.md) for details.
 
 ## Build
 
